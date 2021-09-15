@@ -19,6 +19,9 @@ public class Pbroad extends UntypedAbstractActor{
 	
 	private final String name;
 	private Members mem;
+	private boolean sentecho = false;
+	private int echoes = 0;
+	private boolean delivered = false;
 	
 	public Pbroad(String pName){
 		this.name = pName;
@@ -56,7 +59,50 @@ public class Pbroad extends UntypedAbstractActor{
 			QuorumResponse m = (QuorumResponse) msg;
 			ActorRef actorRec = getSender();
 			log.info("Received " + m.data + ": " + this.getSelf().path().name() + " <- " + actorRec.path().name() + " = " + m.data);
-		}	
+		}
+		
+		if(msg instanceof Launch){
+			log.info("Launch message received, initiating a new BC round...");
+			
+			Launch m = (Launch)msg;
+			for(ActorRef member:this.mem.members){
+				member.tell(new BdMessage("SEND",m.data), getSelf());
+			}
+		}
+
+		if(msg instanceof BdMessage){
+			BdMessage received = (BdMessage) msg;
+			
+			switch(received.data[0]){
+				case "SEND":
+					if(!this.sentecho){
+						for(ActorRef member:this.mem.members){
+							log.info("Echoing message: " + received.data[1]);
+							member.tell(new BdMessage("ECHO",received.data[1]), getSelf());
+						}
+						this.sentecho = true;
+					}
+					break;
+				case "ECHO":
+				{
+					this.echoes++;
+					if(!this.sentecho){
+						for(ActorRef member:this.mem.members){
+							member.tell(new BdMessage("ECHO",received.data[1]), getSelf());
+						}
+						this.sentecho = true;
+					}
+					if(this.echoes > (this.mem.Nmembers/2)){
+						if(!this.delivered){
+							log.info("I delivered message: " + received.data[1]);
+							this.delivered = true;
+						}
+					}
+					break;
+				}
+			}
+			
+		}
 	
 	}
 }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Random;
 
 public class BroadcastSimplified{
 	
@@ -44,12 +46,19 @@ public class BroadcastSimplified{
 			e.printStackTrace();
 		}
 		
+		/*
 		// System test messages
 		TestMessage m = new TestMessage();
 		
 		for(ActorRef member:members){
 			member.tell(m, ActorRef.noSender()); 
 		}
+		*/
+		
+		// Initiating a Broadcast round with a random source
+		Collections.shuffle(members, new Random());
+		Launch launch = new Launch("Success!");
+		members.get(0).tell(launch, ActorRef.noSender());
 		
 		// Waiting for the system termination
 		try{
