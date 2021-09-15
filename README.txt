@@ -24,3 +24,11 @@ Which does it permanently. And now the "mvn" command is available on PowerShell.
  - In order to change the file with the main class, first it is needed to modify
 the "pom" file in the "broadcast" directory. After <<Java>> and <<-classpath>> you
 have the name of the file with the main class.
+
+
+## How to use maven
+
+ - After the maven command is installed, in order to compile and run the project
+do the following:
+	* Open the terminal in the directory "broadcast"
+	* Type: mvn compile exec:exec
